@@ -14,8 +14,14 @@ Quick goals
  - Provide CI to automatically build the project on push
 
 How to build & run (PowerShell)
+
+Open PowerShell and change into the repository folder (where you cloned this repo). For example:
+
 ```powershell
-cd 'D:\softwares\prototype\canal-sample-drawings\multi-agent-security'
+# replace with the actual path where you cloned this repo
+cd 'C:\path\to\multi-agent-security'
+# or, if you are already in the workspace root, use a relative path
+cd ./
 ```
 
 App endpoints (HTTP)

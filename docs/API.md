@@ -99,13 +99,16 @@ If you'd like, I can add any missing agent-specific endpoints or expand the hunt
 
 Build, Integration & Hosting (detailed)
 
+
 - Local build & run (PowerShell):
 
 ```powershell
-$env:JAVA_HOME='D:\coding\OpenJDK64';
-$env:M2_HOME='D:\coding\apache-maven-3.9.11';
+# Optionally set JAVA_HOME and M2_HOME if not already configured on your machine
+$env:JAVA_HOME='C:\Program Files\Java\jdk-11' # adjust as needed
+$env:M2_HOME='C:\apache-maven-3.9.11'           # adjust as needed
 $env:PATH = $env:M2_HOME + '\\bin;' + $env:PATH;
-cd 'D:\d\softwares\prototype\canal-sample-drawings\multi-agent-security'
+# From the repository root (where you cloned this repo)
+cd 'C:\path\to\multi-agent-security'
 & "$env:M2_HOME\\bin\\mvn.cmd" -DskipTests package
 java -jar target\multi-agent-security-0.1.0-shaded.jar
 ```
