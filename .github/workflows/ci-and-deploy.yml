@@ -18,8 +18,18 @@ jobs:
           distribution: 'temurin'
           java-version: '11'
 
+      - name: Cache Maven repository
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
       - name: Build with Maven
-        run: mvn -B -DskipTests package
+        run: |
+          echo 'Running mvn package (logs -> build.log)'
+          mvn -B -e -DskipTests package > build.log 2>&1 || (cat build.log && exit 1)
 
       - name: Start server in background
         run: |
