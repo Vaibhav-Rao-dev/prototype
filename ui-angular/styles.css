@@ -1,0 +1,51 @@
+body{ font-family: Arial, Helvetica, sans-serif; margin:0; padding:0; background:#f4f6f8; color:#222 }
+.topbar{ background:#0b5; color:#033; padding:12px 18px; display:flex; align-items:center; justify-content:space-between }
+.topbar h1{ margin:0; font-size:18px }
+.topbar nav a{ margin-left:10px; color:#033; text-decoration:none }
+.container{ padding:18px }
+.hunter{ display:flex; gap:18px; flex-wrap:wrap }
+.hunter-left{ flex:1; min-width:260px }
+.hunter-right{ width:420px; background:white; padding:12px; border-radius:6px; min-width:260px }
+.search{ margin:12px 0 }
+.queue{ margin-top:12px }
+.case{ background:white; padding:8px; margin-bottom:8px; border-radius:6px; display:flex }
+.case .left{ width:48px }
+.risk{ width:36px; height:36px; border-radius:18px; background:#ddd; display:flex; align-items:center; justify-content:center }
+.risk.high{ background:#e05 }
+.risk.medium{ background:#f5a }
+.timeline{ margin-top:8px }
+.playbook{ margin-top:12px }
+svg{ background:linear-gradient(#fff,#eef); border-radius:6px }
+circle{ fill:#2b7; stroke:#0a3; stroke-width:1 }
+circle.anomalous{ fill:#f55; stroke:#a00 }
+line.anomaly{ stroke:#f55 }
+
+/* generic panels */
+.panel{ background:white; padding:12px; border-radius:6px; margin-bottom:12px }
+.table{ width:100%; border-collapse:collapse }
+.table th, .table td{ border-bottom:1px solid #eee; padding:8px; text-align:left }
+
+/* Guardian */
+.business-units{ display:flex; gap:12px }
+.unit{ background:#fff7; padding:10px; border-radius:6px; width:140px }
+.unit-risk{ color:#b00; font-weight:bold }
+
+/* Kanban */
+.kanban{ display:flex; gap:12px }
+.kanban .col{ background:#f7f9fb; padding:8px; width:180px; border-radius:6px }
+.card{ background:#fff; padding:8px; border-radius:6px; margin-bottom:8px }
+
+/* Responsive tweaks */
+@media (max-width: 800px) {
+	.hunter-right{ width:100% }
+	.business-units{ flex-wrap:wrap }
+	.kanban{ overflow-x:auto }
+}
+
+/* simple widgets */
+.map-small{ height:120px; background:linear-gradient(#eef,#fff); border-radius:6px }
+.timeline-widget .timeline-canvas{ height:120px; background:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center }
+.process-tree{ background:#fff; padding:8px; border-radius:6px }
+.canvas{ background:#f9fbff; height:180px; border-radius:6px; display:flex; align-items:center; justify-content:center }
+.fleet{ min-height:80px }
+
