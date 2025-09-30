@@ -27,25 +27,30 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Build with Maven
+        working-directory: canal-sample-drawings/multi-agent-security
         run: |
           echo 'Running mvn package (logs -> build.log)'
           mvn -B -e -DskipTests package > build.log 2>&1 || (cat build.log && exit 1)
 
       - name: Start server in background
+        working-directory: canal-sample-drawings/multi-agent-security
         run: |
+          echo 'Listing target dir for debug'; ls -la target || true
           nohup java -jar target/*-shaded.jar > server.log 2>&1 &
           echo "started"
 
       - name: Wait for server
+        working-directory: canal-sample-drawings/multi-agent-security
         run: |
           for i in {1..30}; do
             if curl -sSf http://localhost:4567/agents >/dev/null; then echo 'up' && exit 0; fi
             sleep 1
           done
-          cat server.log
+          echo 'server.log:'; cat server.log || true
           exit 1
 
       - name: Run smoke tests
+        working-directory: canal-sample-drawings/multi-agent-security
         run: bash scripts/smoke-test.sh
 
   deploy-ui:
@@ -61,7 +66,7 @@ jobs:
       - name: Upload UI artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: ui-angular
+          path: canal-sample-drawings/multi-agent-security/ui-angular
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v1
