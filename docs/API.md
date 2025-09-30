@@ -95,5 +95,47 @@ The rest of the agent-specific management endpoints are currently not implemente
 
 Appendix: Notes for UI implementers
 - The UI `ui-angular/` expects the backend at the same origin (``). If the backend is hosted on a different host/port set the `base` variable in `ui-angular/app.js` or proxy requests from your dev server.
-
 If you'd like, I can add any missing agent-specific endpoints or expand the hunter endpoints to return richer map and telemetry data. The next step I recommend is wiring the Hunter UI (`ui-angular/`) to call `/cases`, `/playbooks` and `/publish`.
+
+Build, Integration & Hosting (detailed)
+
+- Local build & run (PowerShell):
+
+```powershell
+$env:JAVA_HOME='D:\coding\OpenJDK64';
+$env:M2_HOME='D:\coding\apache-maven-3.9.11';
+$env:PATH = $env:M2_HOME + '\\bin;' + $env:PATH;
+cd 'D:\d\softwares\prototype\canal-sample-drawings\multi-agent-security'
+& "$env:M2_HOME\\bin\\mvn.cmd" -DskipTests package
+java -jar target\multi-agent-security-0.1.0-shaded.jar
+```
+
+- Smoke tests (local):
+  - `scripts/smoke-test.sh` (bash) performs quick checks for `/agents` and `/cases`.
+  - On Windows you can test with PowerShell:
+  ```powershell
+  Invoke-RestMethod http://localhost:4567/agents
+  Invoke-RestMethod http://localhost:4567/cases
+  ```
+
+- CI pipeline (GitHub Actions):
+  - The repo contains `.github/workflows/ci-and-deploy.yml` which:
+    1) Builds the project with Maven.
+    2) Starts the shaded JAR in the Actions runner.
+    3) Runs smoke tests to verify endpoints.
+    4) If smoke passes, uploads `ui-angular` files and deploys to GitHub Pages.
+
+- Hosting recommendations:
+  - UI: Hosted on GitHub Pages (free). The CI will publish `ui-angular` to Pages automatically when you push to `main`.
+  - Backend: This prototype is packaged as a shaded JAR. For production hosting consider a small VM or free cloud tiers. The CI only runs smoke tests and does not keep the backend running permanently.
+
+Integration points for frontend developers
+
+- Base URL: `ui-angular/app.js` sets `base` in the Api factory. If the UI is served from a different origin than the backend, set `base` to the backend URL (for example `https://api.example.com`).
+- Key endpoints to integrate for complete UX:
+  - `/publish` — Ingest events from UI or other connectors.
+  - `/cases` and `/cases/:id` — Case listing and detail used by Hunter and Orchestrator dashboards.
+  - `/playbooks` and `/playbooks/:id/run` — Orchestrator playbook creation and execution.
+  - `/hunter/landscape`, `/hunter/search` — convenience endpoints for Hunter visualizations.
+
+If you want, I can add a sample `docker-compose.yml` to run the backend inside a container and host it on a free container hosting provider; or add a GitHub Action to deploy the backend to a free service (note: most free hosting requires signup and is not entirely automatic without credentials).
