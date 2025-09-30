@@ -1,0 +1,16 @@
+{
+  "name": "multiagent-ui",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build --outDir ../ui-dist",
+    "preview": "vite preview --port 5173"
+  },
+  "dependencies": {
+    "vue": "^3.4.0"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  }
+}

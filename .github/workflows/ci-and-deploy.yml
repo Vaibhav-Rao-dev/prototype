@@ -1,0 +1,57 @@
+name: CI Build, Smoke Test & Deploy UI
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-and-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+
+      - name: Build with Maven
+        run: mvn -B -DskipTests package
+
+      - name: Start server in background
+        run: |
+          nohup java -jar target/*-shaded.jar > server.log 2>&1 &
+          echo "started"
+
+      - name: Wait for server
+        run: |
+          for i in {1..30}; do
+            if curl -sSf http://localhost:4567/agents >/dev/null; then echo 'up' && exit 0; fi
+            sleep 1
+          done
+          cat server.log
+          exit 1
+
+      - name: Run smoke tests
+        run: bash scripts/smoke-test.sh
+
+  deploy-ui:
+    needs: build-and-smoke
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v3
+
+      - name: Upload UI artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: ui-angular
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v1

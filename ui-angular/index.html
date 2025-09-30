@@ -1,0 +1,232 @@
+<!doctype html>
+<html ng-app="masApp">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Multi-Agent Security — UI</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular-route.min.js"></script>
+  <script src="app.js"></script>
+  <script src="services/apiService.js"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="topbar">
+    <h1>Multi-Agent Security</h1>
+    <nav>
+      <a href="#/">Hunter</a>
+      <a href="#/guardian">Guardian</a>
+      <a href="#/analyst">Analyst</a>
+      <a href="#/phalanx">Phalanx</a>
+      <a href="#/warden">Warden</a>
+      <a href="#/stratus">Stratus</a>
+      <a href="#/sentinel">Sentinel</a>
+      <a href="#/orchestrator">Orchestrator</a>
+    </nav>
+    <div class="top-controls">
+      <label><input type="checkbox" ng-model="mockMode" ng-change="toggleMock()"> Mock mode</label>
+    </div>
+  </div>
+
+  <div class="container" ng-view></div>
+
+  <!-- Hunter component template -->
+  <script type="text/ng-template" id="hunter.html">
+    <div class="hunter">
+      <div class="hunter-left">
+        <div class="map" id="networkMap">
+          <!-- SVG map area -->
+          <svg width="100%" height="300" ng-if="assets.length">
+            <g ng-repeat="link in links">
+              <line ng-attr-x1="{{link.x1}}" ng-attr-y1="{{link.y1}}" ng-attr-x2="{{link.x2}}" ng-attr-y2="{{link.y2}}" ng-class="{anomaly:link.anomaly}" stroke-width="2"></line>
+            </g>
+            <g ng-repeat="a in assets" ng-attr-transform="translate({{a.x}},{{a.y}})">
+              <circle r="12" ng-class="{anomalous: a.status==='anomalous'}"></circle>
+              <text x="18" y="6">{{a.id}}</text>
+            </g>
+          </svg>
+          <div ng-if="!assets.length">No assets loaded</div>
+        </div>
+
+        <div class="search">
+          <input type="text" ng-model="nlQuery" placeholder="Natural language query e.g. 'failed login outside country then success'">
+          <button ng-click="nlSearch()">Hunt</button>
+        </div>
+
+        <div class="queue">
+          <h3>Investigation Queue</h3>
+          <div class="case" ng-repeat="c in cases">
+            <div class="left">
+              <div class="risk" ng-class="{high: c.riskScore>75, medium: c.riskScore>40}">{{c.riskScore}}</div>
+            </div>
+            <div class="meta">
+              <div class="title">{{c.title}}</div>
+              <div class="summary">{{c.summary}}</div>
+              <div class="actions">
+                <button ng-click="openCase(c)">Open</button>
+                <button ng-click="action(c,'isolate_host')">Isolate Host</button>
+                <button ng-click="action(c,'lock_account')">Lock User</button>
+                <button ng-click="action(c,'run_scan')">Run Scan</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hunter-right" ng-if="selectedCase">
+        <h3>Case: {{selectedCase.title}}</h3>
+        <p>{{selectedCase.summary}}</p>
+        <div class="timeline">
+          <h4>Timeline</h4>
+                <div class="guardian">
+                  <div class="panel">
+                    <h2>Guardian — Risk-Centric Dashboard</h2>
+                    <div class="business-units">
+                      <div class="unit" ng-repeat="u in ['Marketing','Finance','Engineering']">
+                        <div class="unit-title">{{u}}</div>
+                        <div class="unit-risk">Critical</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="panel">
+                    <h3>Assets & Vulnerabilities</h3>
+                    <div ng-if="!vulns.length">No vulnerabilities found</div>
+                    <table ng-if="vulns.length" class="table">
+                      <thead><tr><th>ID</th><th>Title</th><th>Severity</th><th>Host</th><th>Action</th></tr></thead>
+                      <tbody><tr ng-repeat="v in vulns"><td>{{v.id}}</td><td>{{v.title}}</td><td>{{v.severity}}</td><td>{{v.host}}</td><td><button ng-click="remediate(v)">Remediate</button></td></tr></tbody>
+                    </table>
+                  </div>
+
+                  <div class="panel">
+                    <h3>Patch Prioritization (Kanban)</h3>
+                    <div class="kanban">
+                      <div class="col"><h4>Recommended</h4><div class="card">Patch Apache CVE-xxxx</div></div>
+                      <div class="col"><h4>Testing</h4></div>
+                      <div class="col"><h4>Scheduled</h4></div>
+                      <div class="col"><h4>Deployed</h4></div>
+                    </div>
+                  </div>
+                </div>
+  <script type="text/ng-template" id="guardian.html">
+
+              <script type="text/ng-template" id="analyst.html">
+                <div class="analyst">
+                  <h2>Analyst — Unified Log Search</h2>
+                  <div class="search">
+                    <input type="text" placeholder="Search logs e.g. 'failed login'">
+                    <button>Search</button>
+                  </div>
+                  <div class="timeline-widget panel">
+                    <h4>Event Timeline</h4>
+                    <div class="timeline-canvas">(interactive timeline placeholder)</div>
+                  </div>
+                  <div class="panel">
+                    <h4>Story View</h4>
+                    <div class="story">(automatically correlated events will appear here)</div>
+                  </div>
+                </div>
+              </script>
+
+              <script type="text/ng-template" id="phalanx.html">
+                <div class="phalanx">
+                  <h2>Phalanx — Email Security</h2>
+                  <div class="panel">
+                    <h4>Threat Intel</h4>
+                    <div class="map-small">(world map placeholder)</div>
+                  </div>
+                  <div class="panel">
+                    <h4>Quarantine</h4>
+                    <div class="quarantine">(list of quarantined emails)</div>
+                  </div>
+                  <div class="panel">
+                    <h4>Human Risk</h4>
+                    <div class="users">(vulnerable users list)</div>
+                  </div>
+                </div>
+              </script>
+
+              <script type="text/ng-template" id="warden.html">
+                <div class="warden">
+                  <h2>Warden — Privileged Access</h2>
+                  <div class="panel">
+                    <h4>Top Privileged Users</h4>
+                    <table class="table"><tr ng-repeat="i in [1,2,3,4,5]"><td>admin{{i}}</td><td>baseline</td><td><button>View</button></td></tr></table>
+                  </div>
+                  <div class="panel">
+                    <h4>Access Reviews</h4>
+                    <div class="access-review">Does 'j.smith' still require Domain Admin access? <button>Approve</button> <button>Revoke</button></div>
+                  </div>
+                </div>
+              </script>
+
+              <script type="text/ng-template" id="stratus.html">
+                <div class="stratus">
+                  <h2>Stratus — Cloud Security</h2>
+                  <div class="panel">
+                    <h4>Cloud Posture</h4>
+                    <div class="cloud-cards">
+                      <div class="card">AWS: 85% compliant</div>
+                      <div class="card">Azure: 92% compliant</div>
+                      <div class="card">GCP: 78% compliant</div>
+                    </div>
+                  </div>
+                  <div class="panel">
+                    <h4>Misconfigurations</h4>
+                    <div class="misconfig">S3 Bucket 'public-data-123' is public. <button>Fix Now</button></div>
+                  </div>
+                </div>
+              </script>
+
+              <script type="text/ng-template" id="sentinel.html">
+                <div class="sentinel">
+                  <h2>Sentinel — Endpoint Fleet</h2>
+                  <div class="panel">
+                    <h4>Fleet Overview</h4>
+                    <div class="fleet">(devices by OS / risk level)</div>
+                  </div>
+                  <div class="panel">
+                    <h4>Process Tree</h4>
+                    <div class="process-tree">powershell.exe -> cmd.exe -> downloader -> encryptor</div>
+                  </div>
+                </div>
+              </script>
+
+              <script type="text/ng-template" id="orchestrator.html">
+                <div class="orchestrator">
+                  <h2>Orchestrator — Playbook Builder</h2>
+                  <div class="panel">
+                    <h4>Playbook Canvas</h4>
+                    <div class="canvas">(drag-and-drop placeholder)</div>
+                  </div>
+                  <div class="panel">
+                    <h4>Active Incidents</h4>
+                    <div class="incidents">(case list and playbook run status)</div>
+                  </div>
+                </div>
+              </script>
+    <div class="guardian">
+      <h2>Guardian — Vulnerabilities</h2>
+      <div ng-if="!vulns.length">No vulnerabilities found</div>
+      <table ng-if="vulns.length">
+        <thead><tr><th>ID</th><th>Title</th><th>Severity</th><th>Host</th></tr></thead>
+        <tbody><tr ng-repeat="v in vulns"><td>{{v.id}}</td><td>{{v.title}}</td><td>{{v.severity}}</td><td>{{v.host}}</td></tr></tbody>
+      </table>
+      <div class="actions" ng-if="vulns.length">
+        <h4>Actions</h4>
+        <div ng-repeat="v in vulns">
+          <span>{{v.id}} - {{v.title}}</span>
+          <button ng-click="remediate(v)">Remediate</button>
+        </div>
+      </div>
+      <div class="schedule">
+        <h4>Schedule Patch</h4>
+        <input type="datetime-local" ng-model="scheduleWhen">
+        <input type="text" ng-model="scheduleTargets" placeholder="comma-separated targets">
+        <button ng-click="schedulePatch()" ng-disabled="scheduling">Schedule</button>
+      </div>
+    </div>
+  </script>
+
+</body>
+</html>

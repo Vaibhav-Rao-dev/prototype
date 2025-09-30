@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Multi-Agent Security - UI</title>
+  <style>body{font-family:Segoe UI,Arial;margin:20px}pre{white-space:pre-wrap}</style>
+</head>
+<body>
+  <h1>Cases</h1>
+  <button id=refresh>Refresh</button>
+  <pre id=cases>loading...</pre>
+
+  <script>
+    async function load(){
+      const r = await fetch('/cases');
+      const js = await r.json();
+      document.getElementById('cases').innerText = JSON.stringify(js, null, 2);
+    }
+    document.getElementById('refresh').addEventListener('click', load);
+    load();
+  </script>
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Multi-agent — Playbook Runs</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <style>body{font-family:Arial,Helvetica,sans-serif;padding:16px} .run{border:1px solid #ddd;padding:8px;margin:8px 0}</style>
+  </head>
+  <body>
+    <div id="app">
+      <h2>Playbook Runs</h2>
+      <button @click="loadRuns">Refresh</button>
+      <div v-for="r in runs" :key="r.id" class="run">
+        <strong>{{r.playbookId}}</strong> — {{r.status}} <em>({{r.createdAt}})</em>
+        <div><button @click="loadSteps(r.id)">View Steps</button></div>
+        <div v-if="activeRun==r.id">
+          <ul>
+            <li v-for="s in steps" :key="s.index">
+              [{{s.index}}] {{s.name}} — {{s.status}} <span v-if="s.requiresApproval">(requires approval: {{s.approverRole}})</span>
+              <button v-if="s.requiresApproval && s.status=='pending'" @click="approve(r.id,s.index)">Approve</button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const { createApp } = Vue;
+      createApp({
+        data(){ return { runs: [], steps: [], activeRun: null } },
+        methods: {
+          async loadRuns(){ let r = await fetch('/playbook_runs'); this.runs = await r.json(); },
+          async loadSteps(id){ this.activeRun = id; let r = await fetch(`/playbook_runs/${id}/steps`); this.steps = await r.json(); },
+          async approve(runId, idx){ await fetch(`/playbook_runs/${runId}/steps/${idx}/approve?role=manager`, { method:'POST' }); await this.loadSteps(runId); }
+        },
+        mounted(){ this.loadRuns(); }
+      }).mount('#app')
+    </script>
+  </body>
+</html>
