@@ -65,7 +65,7 @@ public class Main {
                 m.put("id", a.id());
                 m.put("name", a.name());
                 return m;
-            }).toList();
+            }).collect(java.util.stream.Collectors.toList());
             return gson.toJson(list);
         });
 
